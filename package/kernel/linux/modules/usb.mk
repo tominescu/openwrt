@@ -39,8 +39,8 @@ endef
 define KernelPackage/usb-gadget
   TITLE:=USB Gadget support
   KCONFIG:=CONFIG_USB_GADGET
-  FILES:=
-  AUTOLOAD:=
+  FILES:=$(LINUX_DIR)/drivers/usb/gadget/udc-core.ko
+  AUTOLOAD:=$(call AutoLoad,45,udc-core)
   DEPENDS:=@USB_GADGET_SUPPORT
   $(call AddDepends/usb)
 endef
@@ -51,6 +51,21 @@ endef
 
 $(eval $(call KernelPackage,usb-gadget))
 
+define KernelPackage/usb-lib-composite
+  TITLE:=USB lib composite
+  KCONFIG:=CONFIG_USB_LIBCOMPOSITE
+  DEPENDS:=+kmod-usb-gadget +kmod-fs-configfs @!LINUX_3_3 @!LINUX_3_6
+  FILES:=$(LINUX_DIR)/drivers/usb/gadget/libcomposite.ko
+  AUTOLOAD:=$(call AutoLoad,50,libcomposite)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-lib-composite/description
+ Lib Composite
+endef
+
+$(eval $(call KernelPackage,usb-lib-composite))
+
 
 define KernelPackage/usb-eth-gadget
   TITLE:=USB Ethernet Gadget support
@@ -58,9 +73,19 @@ define KernelPackage/usb-eth-gadget
 	CONFIG_USB_ETH \
 	CONFIG_USB_ETH_RNDIS=y \
 	CONFIG_USB_ETH_EEM=y
-  DEPENDS:=+kmod-usb-gadget
+  DEPENDS:=+kmod-usb-gadget +(!LINUX_3_3&&!LINUX_3_6):kmod-usb-lib-composite
+ifneq ($(wildcard $(LINUX_DIR)/drivers/usb/gadget/u_ether.ko),)
+  FILES:= \
+	$(LINUX_DIR)/drivers/usb/gadget/u_ether.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/u_rndis.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/usb_f_rndis.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/usb_f_eem.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/g_ether.ko
+  AUTOLOAD:=$(call AutoLoad,52,g_ether)
+else
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/g_ether.ko
   AUTOLOAD:=$(call AutoLoad,52,g_ether)
+endif
   $(call AddDepends/usb)
 endef
 
@@ -97,6 +122,7 @@ define KernelPackage/usb-ohci
 	CONFIG_USB_OHCI_ATH79=y \
 	CONFIG_USB_OHCI_BCM63XX=y \
 	CONFIG_USB_OCTEON_OHCI=y \
+	CONFIG_USB_OHCI_HCD_OMAP3=y \
 	CONFIG_USB_OHCI_HCD_PLATFORM=y
   FILES:=$(LINUX_DIR)/drivers/usb/host/ohci-hcd.ko
   AUTOLOAD:=$(call AutoLoad,50,ohci-hcd,1)
@@ -721,7 +747,13 @@ define KernelPackage/usb-net
   TITLE:=Kernel modules for USB-to-Ethernet convertors
   KCONFIG:=CONFIG_USB_USBNET CONFIG_MII=y
   AUTOLOAD:=$(call AutoProbe,usbnet)
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),lt,3.12.0)),1)
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/usbnet.ko
+else
+  FILES:=\
+	$(LINUX_DIR)/drivers/$(USBNET_DIR)/usbnet.ko \
+	$(LINUX_DIR)/drivers/net/mii.ko
+endif
   $(call AddDepends/usb)
 endef
 
@@ -1047,11 +1079,19 @@ define KernelPackage/usb-chipidea
 	CONFIG_USB_CHIPIDEA_HOST=y \
 	CONFIG_USB_CHIPIDEA_UDC=n \
 	CONFIG_USB_CHIPIDEA_DEBUG=y
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),lt,3.11.0)),1)
   FILES:=\
 	$(LINUX_DIR)/drivers/usb/chipidea/ci_hdrc.ko \
 	$(if $(CONFIG_OF_DEVICE),$(LINUX_DIR)/drivers/usb/chipidea/ci13xxx_imx.ko) \
 	$(if $(CONFIG_OF_DEVICE),$(LINUX_DIR)/drivers/usb/chipidea/usbmisc_imx$(if $(call kernel_patchver_le,3.9),6q).ko)
   AUTOLOAD:=$(call AutoLoad,51,ci_hdrc $(if $(CONFIG_OF_DEVICE),ci13xxx_imx usbmisc_imx$(if $(call kernel_patchver_le,3.9),6q)),1)
+else
+  FILES:=\
+	$(LINUX_DIR)/drivers/usb/chipidea/ci_hdrc.ko \
+	$(if $(CONFIG_OF),$(LINUX_DIR)/drivers/usb/chipidea/ci_hdrc_imx.ko) \
+	$(if $(CONFIG_OF),$(LINUX_DIR)/drivers/usb/chipidea/usbmisc_imx.ko)
+  AUTOLOAD:=$(call AutoLoad,51,ci_hdrc $(if $(CONFIG_OF),ci_hdrc_imx usbmisc_imx),1)
+endif
   $(call AddDepends/usb)
 endef
   
