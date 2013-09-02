@@ -31,5 +31,7 @@ the lack of case sensitiveness in the file system.
 Sunshine!
 	Your OpenWrt Project
 	http://openwrt.org
-
+=====================================================================================
+My changes:
+1. Change wr720n image size to 8MB. [2013/09/02]
 
