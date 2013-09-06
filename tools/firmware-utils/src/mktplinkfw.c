@@ -347,7 +347,7 @@ static struct board_info boards[] = {
 		.id		= "TL-WR720Nv3",
 		.hw_id		= HWID_TL_WR720N_V3,
 		.hw_rev		= 1,
-		.layout_id	= "4Mlzma",
+		.layout_id	= "8Mlzma",
 	}, {
 		/* terminating entry */
 	}
