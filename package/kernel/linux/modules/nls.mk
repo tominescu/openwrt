@@ -100,6 +100,22 @@ endef
 $(eval $(call KernelPackage,nls-cp866))
 
 
+define KernelPackage/nls-cp936
+  SUBMENU:=Native Language Support
+  TITLE:=Codepage 936 (china)
+  KCONFIG:=CONFIG_NLS_CODEPAGE_936
+  FILES:=$(LINUX_DIR)/fs/nls/nls_cp936.ko
+  AUTOLOAD:=$(call AutoLoad,25,nls_cp936)
+  $(call AddDepends/nls)
+endef
+
+define KernelPackage/nls-cp437/description
+Kernel module for NLS Codepage 936 (china)
+endef
+
+$(eval $(call KernelPackage,nls-cp936))
+
+
 define KernelPackage/nls-cp1250
   SUBMENU:=Native Language Support
   TITLE:=Codepage 1250 (Eastern Europe)
