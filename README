@@ -34,4 +34,9 @@ Sunshine!
 =====================================================================================
 My changes:
 1. Change wr720n image size to 8MB. [2013/09/02]
+2. Open wifi by default. [2013/09/06]
+3. Add support for Simplified Chinese CP936. [2013/09/06]
+
+									Xiaofu
+									me@xiaofu.tk
 
