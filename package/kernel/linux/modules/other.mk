@@ -162,6 +162,22 @@ endef
 
 $(eval $(call KernelPackage,gpio-nxp-74hc164))
 
+define KernelPackage/gpio-pca953x
+  SUBMENU:=$(OTHER_MENU)
+  DEPENDS:=@GPIO_SUPPORT +kmod-i2c-core
+  TITLE:=PCA95xx, TCA64xx, and MAX7310 I/O ports
+  KCONFIG:=CONFIG_GPIO_PCA953X
+  FILES:=$(LINUX_DIR)/drivers/gpio/gpio-pca953x.ko
+  AUTOLOAD:=$(call AutoLoad,55,gpio-pca953x)
+endef
+
+define KernelPackage/gpio-pca953x/description
+ Kernel module for MAX731{0,2,3,5}, PCA6107, PCA953{4-9}, PCA955{4-7},
+ PCA957{4,5} and TCA64{08,16} I2C GPIO expanders
+endef
+
+$(eval $(call KernelPackage,gpio-pca953x))
+
 define KernelPackage/gpio-pcf857x
   SUBMENU:=$(OTHER_MENU)
   DEPENDS:=@GPIO_SUPPORT +kmod-i2c-core
@@ -176,6 +192,51 @@ define KernelPackage/gpio-pcf857x/description
 endef
 
 $(eval $(call KernelPackage,gpio-pcf857x))
+
+define KernelPackage/iio-core
+  SUBMENU:=$(OTHER_MENU)
+  DEPENDS:=@!LINUX_3_3
+  TITLE:=Industrial IO core
+  KCONFIG:= \
+	CONFIG_IIO \
+	CONFIG_IIO_BUFFER=y \
+	CONFIG_IIO_KFIFO_BUF \
+	CONFIG_IIO_TRIGGER=y \
+	CONFIG_IIO_TRIGGERED_BUFFER
+  FILES:= \
+	$(LINUX_DIR)/drivers/iio/industrialio.ko \
+	$(LINUX_DIR)/drivers/iio/industrialio-triggered-buffer.ko \
+	$(LINUX_DIR)/drivers/iio/kfifo_buf.ko
+  AUTOLOAD:=$(call AutoLoad,55,industrialio kfifo_buf industrialio-triggered-buffer)
+endef
+
+define KernelPackage/iio-core/description
+ The industrial I/O subsystem provides a unified framework for
+ drivers for many different types of embedded sensors using a
+ number of different physical interfaces (i2c, spi, etc)
+endef
+
+$(eval $(call KernelPackage,iio-core))
+
+
+define KernelPackage/iio-ad799x
+  SUBMENU:=$(OTHER_MENU)
+  DEPENDS:=kmod-i2c-core kmod-iio-core
+  TITLE:=Analog Devices AD799x ADC driver
+  KCONFIG:= \
+	CONFIG_AD799X_RING_BUFFER=y \
+	CONFIG_AD799X
+  FILES:=$(LINUX_DIR)/drivers/staging/iio/adc/ad799x.ko
+  AUTOLOAD:=$(call AutoLoad,56,ad799x)
+endef
+
+define KernelPackage/iio-ad799x/description
+ support for Analog Devices:
+ ad7991, ad7995, ad7999, ad7992, ad7993, ad7994, ad7997, ad7998
+ i2c analog to digital converters (ADC). WARNING! This driver is still staging!
+endef
+
+$(eval $(call KernelPackage,iio-ad799x))
 
 define KernelPackage/lp
   SUBMENU:=$(OTHER_MENU)
@@ -699,3 +760,66 @@ define KernelPackage/random-core/description
 endef
 
 $(eval $(call KernelPackage,random-core))
+
+
+define KernelPackage/thermal
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Generic Thermal sysfs driver
+  KCONFIG:= \
+	CONFIG_THERMAL \
+	CONFIG_THERMAL_DEFAULT_GOV_STEP_WISE=y \
+	CONFIG_THERMAL_DEFAULT_GOV_FAIR_SHARE=n \
+	CONFIG_THERMAL_DEFAULT_GOV_USER_SPACE=n \
+	CONFIG_THERMAL_GOV_FAIR_SHARE=n \
+	CONFIG_THERMAL_GOV_STEP_WISE=y \
+	CONFIG_THERMAL_GOV_USER_SPACE=n \
+	CONFIG_THERMAL_EMULATION=n
+  FILES:=$(LINUX_DIR)/drivers/thermal/thermal_sys.ko
+  AUTOLOAD:=$(call AutoProbe,thermal_sys)
+endef
+
+define KernelPackage/thermal/description
+ Generic Thermal Sysfs driver offers a generic mechanism for thermal
+ management. Usually it's made up of one or more thermal zone and cooling
+ device.
+endef
+
+$(eval $(call KernelPackage,thermal))
+
+
+define KernelPackage/thermal-armada
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Armada 370/XP thermal management
+  DEPENDS:=@TARGET_mvebu +kmod-thermal
+  KCONFIG:=CONFIG_ARMADA_THERMAL
+  FILES:=$(LINUX_DIR)/drivers/thermal/armada_thermal.ko
+  AUTOLOAD:=$(call AutoProbe,armada_thermal)
+endef
+
+define KernelPackage/thermal-armada/description
+ Enable this module if you want to have support for thermal management
+ controller present in Armada 370 and Armada XP SoC.
+endef
+
+$(eval $(call KernelPackage,thermal-armada))
+
+
+define KernelPackage/thermal-imx
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Temperature sensor driver for Freescale i.MX SoCs
+  DEPENDS:=@TARGET_imx6 +kmod-thermal
+  KCONFIG:= \
+	CONFIG_CPU_THERMAL=y \
+	CONFIG_IMX_THERMAL
+  FILES:=$(LINUX_DIR)/drivers/thermal/imx_thermal.ko
+  AUTOLOAD:=$(call AutoProbe,imx_thermal)
+endef
+
+define KernelPackage/thermal-imx/description
+ Support for Temperature Monitor (TEMPMON) found on Freescale i.MX SoCs.
+ It supports one critical trip point and one passive trip point. The
+ cpufreq is used as the cooling device to throttle CPUs when the
+ passive trip is crossed.
+endef
+
+$(eval $(call KernelPackage,thermal-imx))
