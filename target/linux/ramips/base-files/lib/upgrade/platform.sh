@@ -84,6 +84,8 @@ platform_check_image() {
 	ur-326n4g |\
 	ur-336un |\
 	wr512-3gn |\
+	wmr300 |\
+	wrtnode |\
 	x5 |\
 	x8)
 		[ "$magic" != "27051956" ] && {
@@ -95,6 +97,13 @@ platform_check_image() {
 	dir-610-a1 |\
 	dir-645)
 		[ "$magic" != "5ea3a417" ] && {
+			echo "Invalid image type."
+			return 1
+		}
+		return 0
+		;;
+	br-6475nd)
+		[ "$magic" != "43535953" ] && {
 			echo "Invalid image type."
 			return 1
 		}

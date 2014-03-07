@@ -10,11 +10,11 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=mac80211
 
-PKG_VERSION:=2013-11-05
-PKG_RELEASE:=5
+PKG_VERSION:=2014-01-23.1
+PKG_RELEASE:=1
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources
 PKG_BACKPORT_VERSION:=
-PKG_MD5SUM:=5ef839d02d19c341629555a529beebee
+PKG_MD5SUM:=8db16edbdaf4abc2e9c2f3b6c86736a6
 
 PKG_SOURCE:=compat-wireless-$(PKG_VERSION)$(PKG_BACKPORT_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/compat-wireless-$(PKG_VERSION)
@@ -641,7 +641,7 @@ endef
 
 define KernelPackage/libertas-sd
   $(call KernelPackage/mac80211/Default)
-  DEPENDS+= +kmod-cfg80211 +kmod-lib80211 +kmod-mmc +@DRIVER_WEXT_SUPPORT
+  DEPENDS+= +kmod-cfg80211 +kmod-lib80211 +kmod-mmc +@DRIVER_WEXT_SUPPORT @!TARGET_uml
   TITLE:=Marvell 88W8686 Wireless Driver
   FILES:= \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/libertas/libertas.ko \

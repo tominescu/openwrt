@@ -21,7 +21,7 @@ get_status_led() {
 	br6524n)
 		status_led="edimax:blue:power"
 		;;
-	br6425)
+	br6425 | br-6475nd)
 		status_led="edimax:green:power"
 		;;
 	d105)
@@ -160,7 +160,10 @@ get_status_led() {
 		;;
 	f7c027)
 		status_led="belkin:orange:status"
-        ;;
+		;;
+	na930)
+		status_led="na930:blue:power"
+		;;
 	esac
 }
 
